@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Financeiro.Dominio\Financeiro.Dominio.csproj" />
+    <ProjectReference Include="..\FInanceiro.Infra\FInanceiro.Infra.csproj" />
+  </ItemGroup>
+
+</Project>
