@@ -14,7 +14,6 @@ namespace WpFinanceiro.Entities
         public int UsuarioCriacao { get; set; }
         public int UsuarioEdicao { get; set; }
         public bool Ativo { get; set; }
-        //public int Status { get; set; }
         public int IdCliente { get; set; }
 
         public IDictionary<string, object> GetBasePorperties()

@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using WpFinanceiro.Domains;
 using WpFinanceiro.Entities;
 using WpFinanceiro.Infrastructure.Exceptions;
@@ -11,77 +13,25 @@ namespace WpFinanceiro.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ExtratosController : ControllerBase
+    public class DadosBancariosController : ControllerBase
     {
         private readonly SegurancaService _service;
-        private readonly ExtratoDomain _domain;
+        private readonly DadosBancariosDomain _domain;
 
-        public ExtratosController(SegurancaService service, ExtratoDomain domain)
+        public DadosBancariosController(SegurancaService service, DadosBancariosDomain domain)
         {
             _service = service;
             _domain = domain;
         }
 
-        [HttpPost("InserirCredito/{token}")]
-        public async Task<IActionResult> InserirCreditoAsync([FromRoute]string token, [FromBody]IEnumerable<Extrato> extratos)
-        {
-            try
-            {
-                await _service.ValidateTokenAsync(token);
-                var result = _domain.Inserir(extratos);
-
-                return Ok(result);
-            }
-            catch(ServiceException e)
-            {
-                return StatusCode(401, e.Message);
-            }
-            catch(InvalidTokenException e)
-            {
-                return StatusCode(401, e.Message);
-            }
-            catch(ExtratoException e)
-            {
-                return StatusCode(400, e.Message);
-            }
-            catch(Exception e)
-            {
-                return StatusCode(500, "Ocorreu um erro interno no servidor.");
-            }
-        }
-
-        [HttpPost("Get/{token}")]
-        public async Task<IActionResult> GetAsync([FromRoute]string token, [FromBody]Extrato extrato)
+        [HttpGet("{token}")]
+        public async Task<IActionResult> GetAllAsync([FromRoute]string token)
         {
             try
             {
                 await _service.ValidateTokenAsync(token);
 
-                IEnumerable<Extrato> extratos = default(List<Extrato>);
-                if (extrato.DataInicio != null && extrato.DataInicio > DateTime.MinValue
-                    && extrato.DataFim != null && extrato.DataFim > DateTime.MinValue)
-                {
-                    extratos = _domain.GetByRangeOfDate(extrato.DataInicio, extrato.DataFim);
-                    return Ok(extratos);
-                }
-
-                extratos = await _domain.GetByProperties(extrato.GetProperties());
-                return Ok(extratos);
-            }
-            catch(Exception e)
-            {
-                return StatusCode(500, "Ocorreu um erro interno no servidor.");
-            }
-        }
-
-        [HttpPost("AlocarCredito/{token}")]
-        public async Task<IActionResult> AlocarCreditoAsync([FromRoute]string token, [FromBody]IEnumerable<Extrato> extratos)
-        {
-            try
-            {
-                await _service.ValidateTokenAsync(token);
-                var result = _domain.Alocar(extratos);
-
+                var result = _domain.GetAll();
                 return Ok(result);
             }
             catch (ServiceException e)
@@ -92,7 +42,7 @@ namespace WpFinanceiro.Controllers
             {
                 return StatusCode(401, e.Message);
             }
-            catch (ExtratoException e)
+            catch (DadosBancariosException e)
             {
                 return StatusCode(400, e.Message);
             }
@@ -102,17 +52,15 @@ namespace WpFinanceiro.Controllers
             }
         }
 
-        [HttpGet("LiberarPagamento/{idCliente:int}/{codigoExterno:int}/{destino}/{tipoDestino:int}/{token}")]
-        public async Task<IActionResult> LiberarPagamentoAsync([FromRoute]string token,
-            [FromRoute]int idCliente, [FromRoute]int codigoExterno, [FromRoute]string destino, [FromRoute]int tipoDestino)
+        [HttpGet("{idCliente:int}/{cpf}/{token}")]
+        public async Task<IActionResult> GetByCpfAsync([FromRoute]int idCliente, [FromRoute]string cpf, [FromRoute]string token)
         {
             try
             {
                 await _service.ValidateTokenAsync(token);
-                if(_domain.LiberarPagamento(idCliente, codigoExterno, destino, tipoDestino))
-                    return Ok("Status Atualizado com sucesso!");
 
-                return Ok("Não foi possível atualizar o Status.");
+                var result = _domain.GetByCpf(cpf, idCliente);
+                return Ok(result);
             }
             catch (ServiceException e)
             {
@@ -122,7 +70,7 @@ namespace WpFinanceiro.Controllers
             {
                 return StatusCode(401, e.Message);
             }
-            catch (ExtratoException e)
+            catch (DadosBancariosException e)
             {
                 return StatusCode(400, e.Message);
             }
@@ -132,16 +80,15 @@ namespace WpFinanceiro.Controllers
             }
         }
 
-        [HttpGet("BuscarSaldo/{idCliente:int}/{destino}/{tipoDestino:int}/{token}")]
-        public async Task<IActionResult> BuscarSaldoAsync([FromRoute]int idCliente, 
-            [FromRoute]string destino, [FromRoute]int tipoDestino, [FromRoute]string token)
+        [HttpPost("{token}")]
+        public async Task<IActionResult> SaveAsync([FromRoute]string token, [FromBody]DadosBancarios conta)
         {
             try
             {
                 await _service.ValidateTokenAsync(token);
-                var saldo = _domain.GetSaldo(idCliente, destino, tipoDestino);
 
-                return Ok(saldo);
+                var result = _domain.Save(conta);
+                return Ok(result);
             }
             catch (ServiceException e)
             {
@@ -151,7 +98,7 @@ namespace WpFinanceiro.Controllers
             {
                 return StatusCode(401, e.Message);
             }
-            catch (ExtratoException e)
+            catch (DadosBancariosException e)
             {
                 return StatusCode(400, e.Message);
             }
@@ -161,15 +108,15 @@ namespace WpFinanceiro.Controllers
             }
         }
 
-        [HttpGet("BuscarNaturezas/{token}")]
-        public async Task<IActionResult> GetNaturezas([FromRoute]string token)
+        [HttpPost("Alterar/{token}")]
+        public async Task<IActionResult> UpdateAsync([FromRoute]string token, [FromBody]DadosBancarios conta)
         {
             try
             {
                 await _service.ValidateTokenAsync(token);
-                var naturezas = _domain.GetNaturezas();
 
-                return Ok(naturezas);
+                _domain.Update(conta);
+                return Ok("Conta atualizada com sucesso.");
             }
             catch (ServiceException e)
             {
@@ -179,7 +126,35 @@ namespace WpFinanceiro.Controllers
             {
                 return StatusCode(401, e.Message);
             }
-            catch (ExtratoException e)
+            catch (DadosBancariosException e)
+            {
+                return StatusCode(400, e.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, "Ocorreu um erro interno no servidor.");
+            }
+        }
+
+        [HttpGet("{idCliente:int}/{codigoExterno:int}/{token}")]
+        public async Task<IActionResult> GetByCodigoExternoAsync([FromRoute]int idCliente, [FromRoute]int codigoExterno, [FromRoute]string token)
+        {
+            try
+            {
+                await _service.ValidateTokenAsync(token);
+
+                var result = _domain.GetByCodigoExterno(idCliente, codigoExterno);
+                return Ok(result);
+            }
+            catch (ServiceException e)
+            {
+                return StatusCode(401, e.Message);
+            }
+            catch (InvalidTokenException e)
+            {
+                return StatusCode(401, e.Message);
+            }
+            catch (DadosBancariosException e)
             {
                 return StatusCode(400, e.Message);
             }

@@ -63,9 +63,10 @@ namespace WpFinanceiro.Domains
             }
         }
 
-        public bool LiberarPagamento(int idCliente, int codigoExterno)
+        public bool LiberarPagamento(int idCliente, int codigoExterno, string destino, int tipoDestino)
         {
-            var extrato = _repository.GetSingle(e => e.IdCliente.Equals(idCliente) && e.CodigoExterno.Equals(codigoExterno));
+            var extrato = _repository.GetSingle(e => e.IdCliente.Equals(idCliente)
+                                && e.CodigoExterno.Equals(codigoExterno) && e.Destino.Equals(destino) && e.TipoDestino.Equals(tipoDestino));
             if (Status.Bloqueado.Equals(extrato.StatusId)) //Bloqueado
             {
                 extrato.StatusId = Status.Aprovado; //Aprovado
@@ -85,11 +86,11 @@ namespace WpFinanceiro.Domains
                 if (properties.Count > 0)
                 {
                     var props = string.Join(",", properties.Select(p => p.Key));
-                    query = $"SELECT { props } FROM Extratos WHERE ";
+                    query = $"SELECT * FROM Extratos WHERE ";
 
-                    for (int i = 1; i <= properties.Count; i++)
+                    for (int i = 0; i < properties.Count; i++)
                     {
-                        if (i < properties.Count)
+                        if ((i + 1) < properties.Count)
                             query += $"{ properties.ElementAt(i).Key } = { properties.ElementAt(i).Value } and ";
                         else
                             query += $"{ properties.ElementAt(i).Key } = { properties.ElementAt(i).Value }";
@@ -122,11 +123,12 @@ namespace WpFinanceiro.Domains
             }
         }
 
-        public decimal GetSaldo(int idCliente, string destino)
+        public decimal GetSaldo(int idCliente, string destino, int tipoDestino)
         {
             try
             {
-                var extratos = _repository.GetList(e => e.IdCliente.Equals(idCliente) && e.Destino.Equals(destino));
+                var extratos = _repository.GetList(e => e.IdCliente.Equals(idCliente) 
+                    && e.Destino.Equals(destino) && e.TipoDestino.Equals(tipoDestino));
                 var saldo = extratos.Sum(e => e.Valor);
 
                 return saldo;
@@ -148,6 +150,21 @@ namespace WpFinanceiro.Domains
             {
                 throw new ExtratoException("Não foi possível buscar as naturezas.", e);
             }
+        }
+
+        public IEnumerable<Extrato> GetAll()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Extrato Save(Extrato entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Update(Extrato entity)
+        {
+            throw new NotImplementedException();
         }
     }
 }

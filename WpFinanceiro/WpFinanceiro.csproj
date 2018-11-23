@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WpFinanceiro.Doamins\WpFinanceiro.Domains.csproj" />
+    <ProjectReference Include="..\WpFinanceiro.Domains\WpFinanceiro.Domains.csproj" />
     <ProjectReference Include="..\WpFinanceiro.Entities\WpFinanceiro.Entities.csproj" />
     <ProjectReference Include="..\WpFinanceiro.Services\WpFinanceiro.Services.csproj" />
   </ItemGroup>

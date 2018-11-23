@@ -10,6 +10,7 @@ namespace WpFinanceiro.Infrastructure
     {
         public DbSet<Extrato> Extratos { get; set; }
         public DbSet<Natureza> Naturezas { get; set; }
+        public DbSet<DadosBancarios> DadosBancarios { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

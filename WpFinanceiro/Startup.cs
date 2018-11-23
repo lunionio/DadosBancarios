@@ -28,9 +28,11 @@ namespace WpFinanceiro
         public void ConfigureServices(IServiceCollection services)
         {
             
-            services.AddTransient<SegurancaService>();
+            services.AddTransient<SegurancaService>(); 
             services.AddTransient<ExtratoRepository>();
             services.AddTransient<NaturezaRepository>(); 
+            services.AddTransient<DadosBancariosDomain>();
+            services.AddTransient<DadosBancariosRepository>();
             services.AddTransient<ExtratoDomain>(); 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
