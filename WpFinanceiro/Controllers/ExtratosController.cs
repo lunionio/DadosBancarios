@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using WpFinanceiro.Domains;
 using WpFinanceiro.Entities;
+using WpFinanceiro.Helpers;
 using WpFinanceiro.Infrastructure.Exceptions;
 using WpFinanceiro.Services;
 
@@ -15,11 +17,13 @@ namespace WpFinanceiro.Controllers
     {
         private readonly SegurancaService _service;
         private readonly ExtratoDomain _domain;
+        private readonly EmailHandler _emailHandler;
 
-        public ExtratosController(SegurancaService service, ExtratoDomain domain)
+        public ExtratosController(SegurancaService service, ExtratoDomain domain, EmailHandler emailHandler)
         {
             _service = service;
             _domain = domain;
+            _emailHandler = emailHandler;
         }
 
         [HttpPost("InserirCredito/{token}")]
@@ -29,6 +33,10 @@ namespace WpFinanceiro.Controllers
             {
                 await _service.ValidateTokenAsync(token);
                 var result = _domain.Inserir(extratos);
+
+                var mainExtrato = extratos.FirstOrDefault();
+
+                await _emailHandler.EnviaEmailAsync(token, mainExtrato);
 
                 return Ok(result);
             }

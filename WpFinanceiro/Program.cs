@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore;
+﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using System.IO;
+using System.Threading.Tasks;
 using WpFinanceiro.Helpers;
 
 namespace WpFinanceiro
@@ -15,14 +10,13 @@ namespace WpFinanceiro
     {
         public static void Main(string[] args)
         {
-
-            MainAsync().Wait();
-
+            MainAsync(args).Wait();
         }
-        static async Task MainAsync()
+
+        static async Task MainAsync(string[] args)
         {
             var url = await AuxNotStatic.GetInfoMotorAux("WpFinanceiro", 1);
-            var host = new WebHostBuilder()
+            var host = WebHost.CreateDefaultBuilder(args)
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseUrls(url.Url)

@@ -21,6 +21,8 @@ namespace WpFinanceiro.Entities
         public DateTime DataInicio { get; set; }
         [NotMapped]
         public DateTime DataFim { get; set; }
+        [NotMapped]
+        public string EmailEmpresa { get; set; }
 
         public IDictionary<string, object> GetProperties()
         {
