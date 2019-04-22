@@ -139,6 +139,52 @@ namespace WpFinanceiro.Domains
             }
         }
 
+        public IEnumerable<Extrato> GetSaldoAprovado(int idCliente, string destino, int tipoDestino)
+        {
+            try
+            {
+                var extratos = _repository.GetList(e => e.IdCliente.Equals(idCliente)
+                    && e.Destino.Equals(destino) && e.TipoDestino.Equals(tipoDestino) && e.StatusId == Status.Aprovado);
+
+                return extratos;
+            }
+            catch (Exception e)
+            {
+                throw new ExtratoException("Não foi possível buscar o saldo solicitado.", e);
+            }
+        }
+
+        public IEnumerable<Extrato> GetSaldoPendente(int idCliente, string destino, int tipoDestino)
+        {
+            try
+            {
+                var extratos = _repository.GetList(e => e.IdCliente.Equals(idCliente)
+                    && e.Destino.Equals(destino) && e.TipoDestino.Equals(tipoDestino) && e.StatusId == Status.Aguardando);
+
+                return extratos;
+            }
+            catch (Exception e)
+            {
+                throw new ExtratoException("Não foi possível buscar o saldo solicitado.", e);
+            }
+        }
+
+        public IEnumerable<Extrato> GetSByDestino(int idCliente, string destino, int tipoDestino)
+        {
+            try
+            {
+                var extratos = _repository.GetList(e => e.IdCliente.Equals(idCliente)
+                    && e.Destino.Equals(destino) && e.TipoDestino.Equals(tipoDestino));
+
+                return extratos;
+            }
+            catch (Exception e)
+            {
+                throw new ExtratoException("Não foi possível buscar o saldo solicitado.", e);
+            }
+        }
+
+
         public IEnumerable<Natureza> GetNaturezas()
         {
             try

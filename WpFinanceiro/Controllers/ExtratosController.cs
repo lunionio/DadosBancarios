@@ -169,6 +169,93 @@ namespace WpFinanceiro.Controllers
             }
         }
 
+        [HttpGet("BuscarSaldoAprovado/{idCliente:int}/{destino}/{tipoDestino:int}/{token}")]
+        public async Task<IActionResult> BuscarSaldoAprovadoAsync([FromRoute]int idCliente,
+            [FromRoute]string destino, [FromRoute]int tipoDestino, [FromRoute]string token)
+        {
+            try
+            {
+                await _service.ValidateTokenAsync(token);
+                var saldo = _domain.GetSaldoAprovado(idCliente, destino, tipoDestino);
+
+                return Ok(saldo);
+            }
+            catch (ServiceException e)
+            {
+                return StatusCode(401, e.Message);
+            }
+            catch (InvalidTokenException e)
+            {
+                return StatusCode(401, e.Message);
+            }
+            catch (ExtratoException e)
+            {
+                return StatusCode(400, e.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, "Ocorreu um erro interno no servidor.");
+            }
+        }
+
+        [HttpGet("BuscarSaldoPendente/{idCliente:int}/{destino}/{tipoDestino:int}/{token}")]
+        public async Task<IActionResult> BuscarSaldoPendenteAsync([FromRoute]int idCliente,
+            [FromRoute]string destino, [FromRoute]int tipoDestino, [FromRoute]string token)
+        {
+            try
+            {
+                await _service.ValidateTokenAsync(token);
+                var saldo = _domain.GetSaldoPendente(idCliente, destino, tipoDestino);
+
+                return Ok(saldo);
+            }
+            catch (ServiceException e)
+            {
+                return StatusCode(401, e.Message);
+            }
+            catch (InvalidTokenException e)
+            {
+                return StatusCode(401, e.Message);
+            }
+            catch (ExtratoException e)
+            {
+                return StatusCode(400, e.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, "Ocorreu um erro interno no servidor.");
+            }
+        }
+
+        [HttpGet("BuscarExtratos/{idCliente:int}/{destino}/{tipoDestino:int}/{token}")]
+        public async Task<IActionResult> BuscarExtratosAsync([FromRoute]int idCliente,
+            [FromRoute]string destino, [FromRoute]int tipoDestino, [FromRoute]string token)
+        {
+            try
+            {
+                await _service.ValidateTokenAsync(token);
+                var saldo = _domain.GetSByDestino(idCliente, destino, tipoDestino);
+
+                return Ok(saldo);
+            }
+            catch (ServiceException e)
+            {
+                return StatusCode(401, e.Message);
+            }
+            catch (InvalidTokenException e)
+            {
+                return StatusCode(401, e.Message);
+            }
+            catch (ExtratoException e)
+            {
+                return StatusCode(400, e.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, "Ocorreu um erro interno no servidor.");
+            }
+        }
+
         [HttpGet("BuscarNaturezas/{token}")]
         public async Task<IActionResult> GetNaturezas([FromRoute]string token)
         {
